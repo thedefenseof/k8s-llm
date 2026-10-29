@@ -90,6 +90,7 @@ kubectl rollout restart deployment/vllm
 ```powershell
 $env:API_KEY = "<ключ_для_API>"
 py scripts\benchmark_vllm.py
+```
 
 Метрики:
 - **TTFT** — время от отправки запроса до первого токена;
