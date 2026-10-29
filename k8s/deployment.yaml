@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: vllm
+  template:
+    metadata:
+      labels:
+        app: vllm
+    spec:
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        fsGroup: 10001   
+      initContainers:
+        - name: model-downloader
+          image: llm-downloader:0.1
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: REPO_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: llm-config
+                  key: REPO_ID
+            - name: MODEL_ROOT
+              valueFrom:
+                configMapKeyRef:
+                  name: llm-config
+                  key: MODEL_ROOT
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: llm-secrets
+                  key: HF_TOKEN
+          volumeMounts:
+            - name: models
+              mountPath: /models
+      containers:
+        - name: vllm
+          image: public.ecr.aws/q9t5s3a7/vllm-cpu-release-repo:latest
+          imagePullPolicy: IfNotPresent
+          args:
+            - /models/Qwen--Qwen2.5-0.5B-Instruct
+            - --config
+            - /config/vllm.yaml
+          env:
+            - name: VLLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: llm-secrets
+                  key: API_KEY
+            - name: VLLM_CPU_KVCACHE_SPACE
+              value: "1"
+            - name: HOME
+              value: /tmp
+          ports:
+            - containerPort: 8000
+          volumeMounts:
+            - name: models
+              mountPath: /models
+              readOnly: true
+            - name: config
+              mountPath: /config
+            - name: tmp
+              mountPath: /tmp
+            - name: dshm
+              mountPath: /dev/shm  
+          resources:
+            requests:
+              memory: 3Gi
+            limits:
+              memory: 6Gi
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: model-storage
+        - name: config
+          configMap:
+            name: llm-config
+            items:
+              - key: vllm.yaml
+                path: vllm.yaml
+        - name: tmp
+          emptyDir: {}
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi  
