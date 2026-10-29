@@ -77,6 +77,18 @@ spec:
               memory: 3Gi
             limits:
               memory: 6Gi
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 10
+            failureThreshold: 60
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 10
+            failureThreshold: 3    
       volumes:
         - name: models
           persistentVolumeClaim:
