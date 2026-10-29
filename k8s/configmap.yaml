@@ -8,6 +8,6 @@ data:
   vllm.yaml: |
     host: 0.0.0.0
     port: 8000
-    max-model-len: 2048
+    max-model-len: 1024
     dtype: bfloat16
     enforce-eager: true
