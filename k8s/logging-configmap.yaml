@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: llm-logging
+data:
+  logging.json: |
+    {
+      "version": 1,
+      "disable_existing_loggers": false,
+      "formatters": {
+        "plain": {"format": "%(asctime)s %(levelname)s %(name)s: %(message)s"}
+      },
+      "handlers": {
+        "console": {
+          "class": "logging.StreamHandler",
+          "formatter": "plain",
+          "stream": "ext://sys.stdout",
+          "level": "INFO"
+        }
+      },
+      "loggers": {
+        "vllm": {"handlers": ["console"], "level": "INFO", "propagate": false},
+        "uvicorn": {"handlers": ["console"], "level": "INFO", "propagate": false},
+        "uvicorn.access": {"handlers": ["console"], "level": "INFO", "propagate": false},
+        "vllm.entrypoints.serve.utils.request_logger": {"handlers": ["console"], "level": "CRITICAL", "propagate": false}
+      }
+    }

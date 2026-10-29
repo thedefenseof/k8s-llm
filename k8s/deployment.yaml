@@ -59,7 +59,9 @@ spec:
             - name: VLLM_CPU_KVCACHE_SPACE
               value: "1"
             - name: HOME
-              value: /tmp
+              value: /tmp 
+            - name: VLLM_LOGGING_CONFIG_PATH
+              value: /logging/logging.json  
           ports:
             - containerPort: 8000
           volumeMounts:
@@ -72,6 +74,8 @@ spec:
               mountPath: /tmp
             - name: dshm
               mountPath: /dev/shm  
+            - name: logging
+              mountPath: /logging  
           resources:
             requests:
               memory: 3Gi
@@ -104,4 +108,7 @@ spec:
         - name: dshm
           emptyDir:
             medium: Memory
-            sizeLimit: 1Gi  
+            sizeLimit: 1Gi 
+        - name: logging
+          configMap:
+            name: llm-logging     
