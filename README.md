@@ -2,7 +2,7 @@
 
 Небольшая LLM (Qwen2.5-0.5B-Instruct), запущенная через vLLM (CPU-сборка) в minikube.
 
-## Что внутри
+## Что внутри реппозитория:
 
 - `downloader/` — образ с initContainer (Python, запуск без root). Один раз скачивает веса с Hugging Face в PVC. При перезапуске пода повторно не качает.
 - `k8s/` — манифесты Kubernetes:
